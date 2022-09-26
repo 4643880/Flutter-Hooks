@@ -23,38 +23,41 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//======================================
-//          Stream
-//======================================
-Stream<String> getTime() {
-  var now = DateTime.now();
-
-  return Stream.periodic(
-    const Duration(seconds: 1),
-    (int a) => DateFormat().format(now),
-  );
-}
-
 class HomePage extends HookWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // useStream in Flutter Hooks
-    final dateTime = useStream(getTime());
+    final controller = useTextEditingController();
+    final text = useState("");
+    useEffect(() {
+      controller.addListener(() {
+        text.value = controller.text;
+      });
+      return null;
+    }, [controller]);
+    // I don't want to rebuild useEffect on hotReload that's why using second parameter and passing controller in []
     return Scaffold(
       appBar: AppBar(
         title: const Text("Flutter Hooks"),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              dateTime.data.toString(),
-              style: Theme.of(context).textTheme.headline5,
-            ),
-          ],
+        child: Padding(git lo
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: controller,
+                decoration:
+                    const InputDecoration(labelText: "Write Something..."),
+              ),
+              Text(
+                "You Typed: ${controller.text}",
+                style: Theme.of(context).textTheme.headline5,
+              )
+            ],
+          ),
         ),
       ),
     );
