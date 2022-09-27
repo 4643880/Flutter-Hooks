@@ -7,6 +7,8 @@ void main() {
   runApp(const MyApp());
 }
 
+extension CompactMap<T> on Iterable<T?> {}
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -28,34 +30,36 @@ class HomePage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = useTextEditingController();
-    final text = useState("");
-    useEffect(() {
-      controller.addListener(() {
-        text.value = controller.text;
-      });
-      return null;
-    }, [controller]);
-    // I don't want to rebuild useEffect on hotReload that's why using second parameter and passing controller in []
+    Future<String> fetchData() async {
+      await Future.delayed(const Duration(seconds: 5));
+      return "Hello Aizaz";
+    }
+
+    final myFuture = fetchData();
+    final myFutureHook = useFuture(myFuture);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Flutter Hooks"),
       ),
       body: Center(
-        child: Padding(git lo
+        child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextField(
-                controller: controller,
-                decoration:
-                    const InputDecoration(labelText: "Write Something..."),
+              const Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Text("Result will be display after 10 seconds"),
               ),
-              Text(
-                "You Typed: ${controller.text}",
-                style: Theme.of(context).textTheme.headline5,
-              )
+              (myFutureHook.hasData)
+                  ? Text(
+                      myFutureHook.data.toString(),
+                      style: Theme.of(context).textTheme.headline5,
+                    )
+                  : const Center(
+                      child: CircularProgressIndicator(),
+                    )
             ],
           ),
         ),
