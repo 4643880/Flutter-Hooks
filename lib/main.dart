@@ -30,13 +30,17 @@ class HomePage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    final count = useState(0);
+    count.value++;
+
     Future<String> fetchData() async {
-      await Future.delayed(const Duration(seconds: 5));
-      return "Hello Aizaz";
+      await Future.delayed(const Duration(seconds: 3));
+      return "Hello Aizaz ${count.value}";
     }
 
-    final myFuture = fetchData();
-    final myFutureHook = useFuture(myFuture);
+    // We use it for Caching the data that came from future first time will remain same
+    final myMemoizedHook = useMemoized(fetchData);
+    final myFutureHook = useFuture(myMemoizedHook);
 
     return Scaffold(
       appBar: AppBar(
@@ -50,7 +54,6 @@ class HomePage extends HookWidget {
             children: [
               const Padding(
                 padding: EdgeInsets.all(32.0),
-                child: Text("Result will be display after 10 seconds"),
               ),
               (myFutureHook.hasData)
                   ? Text(
